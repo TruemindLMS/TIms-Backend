@@ -1,9 +1,9 @@
-using TeamIndia.TalentFlow.Domain.Common;
-
 namespace TeamIndia.TalentFlow.Domain.Entities;
 
-public class Course : BaseEntity
+public class Course
 {
+
+    public Guid CourseId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 

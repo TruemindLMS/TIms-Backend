@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using TeamIndia.TalentFlow.API.ApplicationSettings;
+using TeamIndia.TalentFlow.API.Extensions;
 using TeamIndia.TalentFlow.Domain.Entities;
 using TeamIndia.TalentFlow.Infrastructure.DbContext;
 
@@ -66,6 +67,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger";
     });
 }
+app.UseGlobalExceptionHandler();
 
 app.UseHttpsRedirection();
 

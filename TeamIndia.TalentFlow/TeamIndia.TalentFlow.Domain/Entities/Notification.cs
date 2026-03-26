@@ -1,9 +1,9 @@
-using TeamIndia.TalentFlow.Domain.Common;
 
 namespace TeamIndia.TalentFlow.Domain.Entities;
 
-public class Notification : BaseEntity
+public class Notification
 {
+    public Guid NotificationId { get; set; }
     public Guid UserId { get; set; }
     public virtual ApplicationUser User { get; set; } = null!;
     public string Title { get; set; } = string.Empty;

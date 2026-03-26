@@ -13,6 +13,8 @@
 
   <ItemGroup>
     <Folder Include="Mapping Extension\" />
+    <Folder Include="Mapping Extension\" />
+    <Folder Include="Repositories\" />
     <Folder Include="Repositories\" />
   </ItemGroup>
 
