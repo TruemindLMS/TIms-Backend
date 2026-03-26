@@ -1,9 +1,8 @@
-using TeamIndia.TalentFlow.Domain.Common;
-
 namespace TeamIndia.TalentFlow.Domain.Entities;
 
-public class Module : BaseEntity
+public class Module
 {
+    public Guid ModuleId { get; set; }
     public Guid CourseId { get; set; }
     public virtual Course Course { get; set; } = null!;
 

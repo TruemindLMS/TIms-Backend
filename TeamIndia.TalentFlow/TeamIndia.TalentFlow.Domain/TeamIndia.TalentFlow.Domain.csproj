@@ -7,8 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Common\" />
+    <Folder Include="Enums\" />
     <Folder Include="Identity\" />
     <Folder Include="Enum\" />
+    <Folder Include="Enum\" />
+    <Folder Include="Identity\" />
   </ItemGroup>
 
   <ItemGroup>

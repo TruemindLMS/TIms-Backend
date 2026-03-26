@@ -1,9 +1,8 @@
-using TeamIndia.TalentFlow.Domain.Common;
-
 namespace TeamIndia.TalentFlow.Domain.Entities;
 
-public class Feedback : BaseEntity
+public class Feedback
 {
+    public Guid FeedbackId { get; set; }
     public Guid SubmissionId { get; set; }
     public virtual Submission Submission { get; set; } = null!;
 

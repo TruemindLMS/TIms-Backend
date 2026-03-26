@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Middle wares\" />
+    <Folder Include="Configurations\" />
     <Folder Include="Configurations\" />
   </ItemGroup>
 
