@@ -7,12 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Enum\**" />
+    <EmbeddedResource Remove="Enum\**" />
+    <None Remove="Enum\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Common\" />
     <Folder Include="Enums\" />
     <Folder Include="Identity\" />
-    <Folder Include="Enum\" />
-    <Folder Include="Enum\" />
+    <Folder Include="Enums\" />
     <Folder Include="Identity\" />
+    <Folder Include="Identity\" />
+    <Folder Include="Common\" />
   </ItemGroup>
 
   <ItemGroup>
