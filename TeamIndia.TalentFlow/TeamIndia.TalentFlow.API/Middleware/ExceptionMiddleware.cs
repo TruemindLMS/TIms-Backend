@@ -1,5 +1,5 @@
 using System.Text.Json;
-using TeamIndia.TalentFlow.API.Models;
+using TeamIndia.TalentFlow.Application.Common;
 
 namespace TeamIndia.TalentFlow.API.Middleware;
 

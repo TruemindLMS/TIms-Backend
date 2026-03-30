@@ -1,4 +1,4 @@
-namespace TeamIndia.TalentFlow.API.ApplicationSettings;
+namespace TeamIndia.TalentFlow.Application.ApplicationSettings;
 
 public class JwtSettings
 {

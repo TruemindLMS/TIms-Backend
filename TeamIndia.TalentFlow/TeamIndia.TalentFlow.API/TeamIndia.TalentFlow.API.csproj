@@ -24,6 +24,7 @@
     <Folder Include="Configurations\" />
     <Folder Include="Configurations\" />
     <Folder Include="Configurations\" />
+    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>

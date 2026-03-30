@@ -11,17 +11,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Interfaces\" />
-		<Folder Include="Dtos\" />
-		<Folder Include="Common\" />
-		<Folder Include="Dtos\" />
-		<Folder Include="Interfaces\" />
-		<Folder Include="Dtos\" />
-		<Folder Include="Interfaces\" />
-		<Folder Include="Common\" />
-		<Folder Include="Services\" />
-		<Folder Include="Services\" />
-		<Folder Include="Services\" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.32.0" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.5" />
 	</ItemGroup>
 
 </Project>

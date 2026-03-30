@@ -4,8 +4,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using TeamIndia.TalentFlow.API.ApplicationSettings;
 using TeamIndia.TalentFlow.API.Extensions;
+using TeamIndia.TalentFlow.Application.ApplicationSettings;
 using TeamIndia.TalentFlow.Domain.Entities;
 using TeamIndia.TalentFlow.Infrastructure.DbContext;
 
@@ -28,6 +28,21 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<JwtSettings>>().Value);
+builder.Services.Configure<TeamIndia.TalentFlow.Application.ApplicationSettings.JwtSettings>(builder.Configuration.GetSection("Jwt"));
+builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<TeamIndia.TalentFlow.Application.ApplicationSettings.JwtSettings>>().Value);
+// bind seed admin settings
+builder.Services.Configure<TeamIndia.TalentFlow.Application.ApplicationSettings.SeedAdminSettings>(builder.Configuration.GetSection("SeedAdmin"));
+
+// Infrastructure/Application service registrations
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<Microsoft.AspNetCore.Identity.UserManager<TeamIndia.TalentFlow.Domain.Entities.ApplicationUser>>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITokenService, TeamIndia.TalentFlow.Application.Services.TokenService>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOtpService, TeamIndia.TalentFlow.Application.Services.OtpService>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAdminService, TeamIndia.TalentFlow.Application.Services.AdminService>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAuthService, TeamIndia.TalentFlow.Application.Services.AuthService>();
+// Repositories
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IUserRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.UserRepository>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IRoleRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.RoleRepository>();
 
 // Configure JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>() ?? new JwtSettings();
@@ -56,6 +71,15 @@ builder.Services.AddAuthentication(options =>
     });
 
 var app = builder.Build();
+
+// run seeder
+try
+{
+    TeamIndia.TalentFlow.API.Helpers.SeedDataHelper.SeedRolesAndUsersAsync(app.Services).GetAwaiter().GetResult();
+}
+catch
+{
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
 
-namespace TeamIndia.TalentFlow.API.Models;
+namespace TeamIndia.TalentFlow.Application.Common;
 
 public class BaseResponse
 {
