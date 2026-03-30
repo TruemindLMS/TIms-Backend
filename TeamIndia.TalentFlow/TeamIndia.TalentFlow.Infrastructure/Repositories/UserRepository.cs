@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
-using TeamIndia.TalentFlow.Domain.Entities;
 using TeamIndia.TalentFlow.Application.Interfaces;
+using TeamIndia.TalentFlow.Domain.Entities;
 
 namespace TeamIndia.TalentFlow.Infrastructure.Repositories;
 
@@ -34,8 +34,6 @@ public class UserRepository : IUserRepository
     public Task<IList<ApplicationUser>> GetUsersInRoleAsync(string role)
         => _userManager.GetUsersInRoleAsync(role);
 
-    public async Task<IdentityResult> UpdateAsync(ApplicationUser user)
-    {
-        return await _userManager.UpdateAsync(user);
-    }
+    public Task<IdentityResult> UpdateAsync(ApplicationUser user)
+     => _userManager.UpdateAsync(user);
 }
