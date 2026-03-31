@@ -21,9 +21,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<LessonCompletion> LessonCompletions => Set<LessonCompletion>();
     public DbSet<ProgressRecord> ProgressRecords => Set<ProgressRecord>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        // configure one-to-one relationship between ApplicationUser and UserProfile
+        builder.Entity<ApplicationUser>()
+            .HasOne(u => u.Profile)
+            .WithOne(p => p.User)
+            .HasForeignKey<UserProfile>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

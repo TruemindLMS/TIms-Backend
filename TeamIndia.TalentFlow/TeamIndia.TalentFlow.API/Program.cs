@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -24,13 +25,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<JwtSettings>>().Value);
 builder.Services.Configure<TeamIndia.TalentFlow.Application.ApplicationSettings.JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<TeamIndia.TalentFlow.Application.ApplicationSettings.JwtSettings>>().Value);
-// bind seed admin settings
 builder.Services.Configure<TeamIndia.TalentFlow.Application.ApplicationSettings.SeedAdminSettings>(builder.Configuration.GetSection("SeedAdmin"));
 
 // Infrastructure/Application service registrations
@@ -40,6 +41,10 @@ builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITokenSer
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOtpService, TeamIndia.TalentFlow.Application.Services.OtpService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAdminService, TeamIndia.TalentFlow.Application.Services.AdminService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAuthService, TeamIndia.TalentFlow.Application.Services.AuthService>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IEmailService, TeamIndia.TalentFlow.Infrastructure.Services.EmailService>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IProfileService, TeamIndia.TalentFlow.Application.Services.ProfileService>();
+builder.Services.Configure<TeamIndia.TalentFlow.Application.ApplicationSettings.SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IEmailService, TeamIndia.TalentFlow.Infrastructure.Services.EmailService>();
 // Repositories
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IUserRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.UserRepository>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IRoleRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.RoleRepository>();

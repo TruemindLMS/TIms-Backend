@@ -1,5 +1,5 @@
-using TeamIndia.TalentFlow.Application.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
+using TeamIndia.TalentFlow.Application.Interfaces;
 
 namespace TeamIndia.TalentFlow.Application.Services;
 
@@ -15,7 +15,7 @@ public class OtpService : IOtpService
 
     public Task<string> GenerateAndStoreOtpAsync(string email, TimeSpan? ttl = null)
     {
-        var code = _rng.Next(10000, 100000).ToString();
+        var code = _rng.Next(100000, 1000000).ToString();
         var expiration = ttl ?? TimeSpan.FromMinutes(5);
         _cache.Set(GetCacheKey(email), code, expiration);
         return Task.FromResult(code);
@@ -40,4 +40,15 @@ public class OtpService : IOtpService
     }
 
     private static string GetCacheKey(string email) => $"otp:{email.ToLowerInvariant()}";
+
+    public Task<bool> HasValidOtpAsync(string email)
+    {
+        var key = GetCacheKey(email);
+        if (_cache.TryGetValue(key, out string? stored))
+        {
+            return Task.FromResult(true);
+        }
+
+        return Task.FromResult(false);
+    }
 }

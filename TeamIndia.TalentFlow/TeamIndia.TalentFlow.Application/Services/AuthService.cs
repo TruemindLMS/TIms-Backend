@@ -12,15 +12,92 @@ public class AuthService : IAuthService
     private readonly IRoleRepository _roleRepository;
     private readonly ITokenService _tokenService;
     private readonly IOtpService _otpService;
+    private readonly IEmailService _emailService;
     private readonly JwtSettings _jwtSettings;
 
-    public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, ITokenService tokenService, IOtpService otpService, JwtSettings jwtSettings)
+    public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, ITokenService tokenService, IOtpService otpService, IEmailService emailService, JwtSettings jwtSettings)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _tokenService = tokenService;
         _otpService = otpService;
+        _emailService = emailService;
         _jwtSettings = jwtSettings;
+    }
+
+    public async Task<BaseResponse> ResendOtpAsync(string email)
+    {
+        var user = await _userRepository.FindByEmailAsync(email);
+        if (user == null) return BaseResponse.Fail("User not found", null, 404);
+
+        var has = await _otpService.HasValidOtpAsync(email);
+        if (has)
+        {
+            return BaseResponse.Fail("An OTP was recently sent. Please wait until it expires before requesting another.", null, 429);
+        }
+
+        var otp = await _otpService.GenerateAndStoreOtpAsync(email);
+
+        try
+        {
+            var placeholders = new Dictionary<string, string>
+            {
+                ["FullName"] = user.FullName,
+                ["Otp"] = otp,
+                ["SupportEmail"] = "support@talentflow.com",
+            };
+
+            await _emailService.SendTemplateEmailAsync(user.Email, "Your verification code", "otp-confirmation", placeholders);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to send OTP email to {user.Email}: {ex.Message}");
+        }
+
+        return BaseResponse.Ok("OTP resent", 200);
+    }
+
+    public async Task<BaseResponse> ForgotPasswordAsync(ForgotPasswordRequest request)
+    {
+        var user = await _userRepository.FindByEmailAsync(request.Email);
+        if (user == null) return BaseResponse.Fail("If an account with that email exists, a reset link has been sent.", null, 200);
+
+        var token = await _userRepository.GeneratePasswordResetTokenAsync(user);
+
+        var resetUrl = $"{_jwtSettings.Issuer}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+
+        var subject = "Reset your password";
+
+        var placeholders = new Dictionary<string, string>
+        {
+            ["ResetLink"] = resetUrl,
+            ["SupportEmail"] = "support@talentflow.com"
+        };
+
+        try
+        {
+            await _emailService.SendTemplateEmailAsync(user.Email, subject, "reset-password", placeholders);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to send reset email: {ex.Message}");
+        }
+
+        return BaseResponse.Ok("If an account with that email exists, a reset link has been sent.", 200);
+    }
+
+    public async Task<BaseResponse> ResetPasswordAsync(ResetPasswordRequest request)
+    {
+        if (request.NewPassword != request.ConfirmPassword)
+            return BaseResponse.Fail("Passwords do not match", null, 400);
+
+        var user = await _userRepository.FindByEmailAsync(request.Email);
+        if (user == null) return BaseResponse.Fail("Invalid token or email", null, 400);
+
+        var res = await _userRepository.ResetPasswordAsync(user, request.Token, request.NewPassword);
+        if (!res.Succeeded) return BaseResponse.Fail("Failed to reset password", res.Errors.Select(e => e.Description), 400);
+
+        return BaseResponse.Ok("Password has been reset", 200);
     }
 
     public async Task<BaseResponse<AuthResponse>> RegisterAsync(RegisterRequest request)
@@ -60,7 +137,25 @@ public class AuthService : IAuthService
 
         var otp = await _otpService.GenerateAndStoreOtpAsync(user.Email);
 
-        return BaseResponse<AuthResponse>.Ok(new AuthResponse { Token = string.Empty, ExpiresAtUtc = DateTime.UtcNow, Email = user.Email, FullName = user.FullName }, "Registration successfull, OTP sent", 202);
+        // send OTP to user's email using template
+        try
+        {
+            var placeholders = new Dictionary<string, string>
+            {
+                ["FullName"] = user.FullName,
+                ["Otp"] = otp,
+                ["SupportEmail"] = "support@talentflow.com",
+            };
+
+            await _emailService.SendTemplateEmailAsync(user.Email, "Verify your email", "otp-confirmation", placeholders);
+        }
+        catch (Exception ex)
+        {
+            // log and continue — user was created, OTP stored; email failure should not expose OTP
+            Console.WriteLine($"Failed to send OTP email to {user.Email}: {ex.Message}");
+        }
+
+        return BaseResponse<AuthResponse>.Ok(new AuthResponse { Token = string.Empty, ExpiresAtUtc = DateTime.UtcNow, Email = user.Email, FullName = user.FullName }, "Registration successful, OTP sent to email", 202);
     }
 
     public async Task<BaseResponse<AuthResponse>> LoginAsync(LoginRequest request)
@@ -94,6 +189,11 @@ public class AuthService : IAuthService
         var roles = await _userRepository.GetRolesAsync(user);
         var token = await _tokenService.GenerateTokenAsync(user, roles);
 
-        return BaseResponse<AuthResponse>.Ok(new AuthResponse { Token = token, ExpiresAtUtc = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes), Email = user.Email, FullName = user.FullName }, "Verified", 200);
+        return BaseResponse<AuthResponse>.Ok(new AuthResponse { Token = token, ExpiresAtUtc = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes), Email = user.Email, FullName = user.FullName }, "Email Verified", 200);
+    }
+
+    public async Task<BaseResponse> LogoutAsync(string email)
+    {
+        return BaseResponse.Ok("Logged out", 200);
     }
 }

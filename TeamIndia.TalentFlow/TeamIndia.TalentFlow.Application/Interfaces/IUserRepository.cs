@@ -13,4 +13,8 @@ public interface IUserRepository
     Task<IdentityResult> RemoveFromRoleAsync(ApplicationUser user, string role);
     Task<IList<ApplicationUser>> GetUsersInRoleAsync(string role);
     Task<IdentityResult> UpdateAsync(ApplicationUser user);
+    Task<UserProfile?> GetProfileAsync(ApplicationUser user);
+    Task<IdentityResult> CreateOrUpdateProfileAsync(UserProfile profile);
+    Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user);
+    Task<IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword);
 }

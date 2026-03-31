@@ -16,4 +16,6 @@ public class ApplicationUser : IdentityUser<Guid>
     public virtual ICollection<LessonCompletion> LessonCompletions { get; set; } = new List<LessonCompletion>();
     public virtual ICollection<ProgressRecord> ProgressRecords { get; set; } = new List<ProgressRecord>();
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public virtual UserProfile? Profile { get; set; }
 }
