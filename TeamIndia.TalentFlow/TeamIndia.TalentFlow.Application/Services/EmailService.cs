@@ -4,7 +4,7 @@ using System.Net.Mail;
 using TeamIndia.TalentFlow.Application.ApplicationSettings;
 using TeamIndia.TalentFlow.Application.Interfaces;
 
-namespace TeamIndia.TalentFlow.Infrastructure.Services;
+namespace TeamIndia.TalentFlow.Application.Services;
 
 public class EmailService : IEmailService
 {

@@ -1,5 +1,6 @@
 using TeamIndia.TalentFlow.Application.Dtos;
 using TeamIndia.TalentFlow.Application.Common;
+using TeamIndia.TalentFlow.Application.Dtos.Response;
 
 namespace TeamIndia.TalentFlow.Application.Interfaces;
 

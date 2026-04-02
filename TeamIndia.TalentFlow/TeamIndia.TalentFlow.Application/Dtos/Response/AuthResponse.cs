@@ -1,4 +1,4 @@
-namespace TeamIndia.TalentFlow.Application.Dtos;
+namespace TeamIndia.TalentFlow.Application.Dtos.Response;
 
 public class AuthResponse
 {

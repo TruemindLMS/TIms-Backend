@@ -30,9 +30,9 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<JwtSettings>>().Value);
-builder.Services.Configure<TeamIndia.TalentFlow.Application.ApplicationSettings.JwtSettings>(builder.Configuration.GetSection("Jwt"));
-builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<TeamIndia.TalentFlow.Application.ApplicationSettings.JwtSettings>>().Value);
-builder.Services.Configure<TeamIndia.TalentFlow.Application.ApplicationSettings.SeedAdminSettings>(builder.Configuration.GetSection("SeedAdmin"));
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<JwtSettings>>().Value);
+builder.Services.Configure<SeedAdminSettings>(builder.Configuration.GetSection("SeedAdmin"));
 
 // Infrastructure/Application service registrations
 builder.Services.AddMemoryCache();
@@ -41,13 +41,35 @@ builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITokenSer
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOtpService, TeamIndia.TalentFlow.Application.Services.OtpService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAdminService, TeamIndia.TalentFlow.Application.Services.AdminService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAuthService, TeamIndia.TalentFlow.Application.Services.AuthService>();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IEmailService, TeamIndia.TalentFlow.Infrastructure.Services.EmailService>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IEmailService, TeamIndia.TalentFlow.Application.Services.EmailService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IProfileService, TeamIndia.TalentFlow.Application.Services.ProfileService>();
-builder.Services.Configure<TeamIndia.TalentFlow.Application.ApplicationSettings.SmtpSettings>(builder.Configuration.GetSection("Smtp"));
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IEmailService, TeamIndia.TalentFlow.Infrastructure.Services.EmailService>();
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IEmailService, TeamIndia.TalentFlow.Application.Services.EmailService>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOnboardingService, TeamIndia.TalentFlow.Application.Services.OnboardingService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SecurePolicy", policy =>
+    {
+        policy.WithOrigins("https://talentflow-eight-weld.vercel.app/")
+              .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+              .WithHeaders("Content-type", "Authorization");
+    });
+});
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITeamServices, TeamIndia.TalentFlow.Application.Services.TeamServices>();
+;
+
 // Repositories
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IFileStorageService>(sp =>
+{
+    var env = sp.GetRequiredService<IWebHostEnvironment>();
+    var logger = sp.GetRequiredService<ILogger<TeamIndia.TalentFlow.Application.Services.LocalFileStorageService>>();
+    return new TeamIndia.TalentFlow.Application.Services.LocalFileStorageService(env.WebRootPath, logger);
+});
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IUserRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.UserRepository>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IRoleRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.RoleRepository>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOnboardingRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.OnboardingRepository>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITeamRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.TeamRepository>();
 
 // Configure JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>() ?? new JwtSettings();
@@ -99,6 +121,9 @@ if (app.Environment.IsDevelopment())
 app.UseGlobalExceptionHandler();
 
 app.UseHttpsRedirection();
+
+// enable CORS
+app.UseCors("DefaultCorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();

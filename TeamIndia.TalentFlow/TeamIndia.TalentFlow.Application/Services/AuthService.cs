@@ -1,6 +1,7 @@
 using TeamIndia.TalentFlow.Application.ApplicationSettings;
 using TeamIndia.TalentFlow.Application.Common;
 using TeamIndia.TalentFlow.Application.Dtos;
+using TeamIndia.TalentFlow.Application.Dtos.Response;
 using TeamIndia.TalentFlow.Application.Interfaces;
 using TeamIndia.TalentFlow.Domain.Entities;
 
