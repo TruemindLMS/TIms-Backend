@@ -7,5 +7,7 @@ public class Lesson
     public string Content { get; set; } = string.Empty;
     public Guid CourseId { get; set; }
     public virtual Course Course { get; set; } = null!;
+    public Guid? ModuleId { get; set; }
+    public virtual Module? Module { get; set; }
 
 }

@@ -99,10 +99,13 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// run seeder
 try
 {
     TeamIndia.TalentFlow.API.Helpers.SeedDataHelper.SeedRolesAndUsersAsync(app.Services).GetAwaiter().GetResult();
+
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    TeamIndia.TalentFlow.API.Helpers.DataSeeder.SeedCoursesAsync(db).GetAwaiter().GetResult();
 }
 catch
 {
