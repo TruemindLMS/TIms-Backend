@@ -46,6 +46,8 @@ builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IProfileS
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IEmailService, TeamIndia.TalentFlow.Application.Services.EmailService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOnboardingService, TeamIndia.TalentFlow.Application.Services.OnboardingService>();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ICourseServices, TeamIndia.TalentFlow.Application.Services.CourseServices>();
+
 
 builder.Services.AddCors(options =>
 {
@@ -70,6 +72,8 @@ builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IUserRepo
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IRoleRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.RoleRepository>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOnboardingRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.OnboardingRepository>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITeamRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.TeamRepository>();
+builder.Services.AddAuthorization();
+builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ICourseRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.CourseRepository>();
 
 // Configure JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>() ?? new JwtSettings();
