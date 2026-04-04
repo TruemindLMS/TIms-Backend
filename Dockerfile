@@ -2,18 +2,18 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 
-# Copy solution and csproj files
-COPY TIms-Backend.sln ./
-COPY TIms-Backend/TeamIndia.TalentFlow/TeamIndia.TalentFlow.API/*.csproj TeamIndia.TalentFlow.API/
-COPY TIms-Backend/TeamIndia.TalentFlow/TeamIndia.TalentFlow.Domain/*.csproj TeamIndia.TalentFlow.Domain/
-COPY TIms-Backend/TeamIndia.TalentFlow/TeamIndia.TalentFlow.Application/*.csproj TeamIndia.TalentFlow.Application/
-COPY TIms-Backend/TeamIndia.TalentFlow/TeamIndia.TalentFlow.Infrastructure/*.csproj TeamIndia.TalentFlow.Infrastructure/
+# Copy solution and project files (relative to repo root)
+COPY TeamIndia.TalentFlow/TIms-Backend.sln ./
+COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.API/*.csproj TeamIndia.TalentFlow.API/
+COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Domain/*.csproj TeamIndia.TalentFlow.Domain/
+COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Application/*.csproj TeamIndia.TalentFlow.Application/
+COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Infrastructure/*.csproj TeamIndia.TalentFlow.Infrastructure/
 
 # Restore NuGet packages
 RUN dotnet restore TeamIndia.TalentFlow.API/TeamIndia.TalentFlow.API.csproj
 
-# Copy all project files
-COPY TIms-Backend/TeamIndia.TalentFlow/. ./
+# Copy all source files
+COPY TeamIndia.TalentFlow/. ./
 
 # Publish API project
 RUN dotnet publish TeamIndia.TalentFlow.API/TeamIndia.TalentFlow.API.csproj -c Release -o /app/publish /p:UseAppHost=false
@@ -21,8 +21,6 @@ RUN dotnet publish TeamIndia.TalentFlow.API/TeamIndia.TalentFlow.API.csproj -c R
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
-
-# Bind to PORT from Render
 ENV ASPNETCORE_URLS="http://0.0.0.0:${PORT:-5000}"
 EXPOSE 5000
 
