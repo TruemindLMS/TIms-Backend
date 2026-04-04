@@ -33,4 +33,4 @@ EXPOSE 5000
 COPY --from=build /app/publish .
 
 # ---------- Entrypoint ----------
-ENTRYPOINT ["dotnet", "TeamIndia.TalentFlow.API.dll"]ENTRYPOINT ["dotnet", "TeamIndia.TalentFlow.API.dll"]
+ENTRYPOINT ["dotnet", "TeamIndia.TalentFlow.API.dll"]
