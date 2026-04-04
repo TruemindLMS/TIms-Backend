@@ -1,20 +1,19 @@
 # =========================
-# Multi-stage Dockerfile for .NET 7 API (Render compatible)
+# Multi-stage Dockerfile for .NET 10 API (Render compatible)
 # =========================
 
 # -------- Build Stage --------
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy solution and all project files
-COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.sln ./TeamIndia.TalentFlow.sln
+# Copy project files
 COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.API/*.csproj TeamIndia.TalentFlow.API/
 COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Domain/*.csproj TeamIndia.TalentFlow.Domain/
 COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Application/*.csproj TeamIndia.TalentFlow.Application/
 COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Infrastructure/*.csproj TeamIndia.TalentFlow.Infrastructure/
 
-# Restore NuGet packages using the solution
-RUN dotnet restore TeamIndia.TalentFlow.sln
+# Restore NuGet packages for the API project (no solution file present)
+RUN dotnet restore TeamIndia.TalentFlow.API/TeamIndia.TalentFlow.API.csproj
 
 # Copy full source code
 COPY TeamIndia.TalentFlow/. ./
@@ -23,7 +22,7 @@ COPY TeamIndia.TalentFlow/. ./
 RUN dotnet publish TeamIndia.TalentFlow.API/TeamIndia.TalentFlow.API.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 # -------- Runtime Stage --------
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
 # Bind to PORT environment variable (Render provides $PORT)
@@ -34,4 +33,4 @@ EXPOSE 5000
 COPY --from=build /app/publish .
 
 # ---------- Entrypoint ----------
-ENTRYPOINT ["dotnet", "TeamIndia.TalentFlow.API.dll"]
+ENTRYPOINT ["dotnet", "TeamIndia.TalentFlow.API.dll"]ENTRYPOINT ["dotnet", "TeamIndia.TalentFlow.API.dll"]
