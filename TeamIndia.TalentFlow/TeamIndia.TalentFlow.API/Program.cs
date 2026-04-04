@@ -112,6 +112,8 @@ try
 
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    // Apply any pending migrations to ensure database schema is up to date
+    db.Database.Migrate();
     TeamIndia.TalentFlow.API.Helpers.DataSeeder.SeedCoursesAsync(db).GetAwaiter().GetResult();
 }
 catch
