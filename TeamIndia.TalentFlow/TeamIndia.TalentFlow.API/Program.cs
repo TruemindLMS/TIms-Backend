@@ -119,7 +119,12 @@ catch
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Enable swagger when in Development OR when ENABLE_SWAGGER is set to true (env or config)
+var enableSwagger = app.Environment.IsDevelopment()
+                    || builder.Configuration.GetValue<bool>("ENABLE_SWAGGER")
+                    || string.Equals(Environment.GetEnvironmentVariable("ENABLE_SWAGGER"), "true", StringComparison.OrdinalIgnoreCase);
+
+if (enableSwagger)
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -128,12 +133,13 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger";
     });
 }
+
 app.UseGlobalExceptionHandler();
 
 app.UseHttpsRedirection();
 
-// enable CORS
-app.UseCors("DefaultCorsPolicy");
+// enable CORS (use the registered policy name)
+app.UseCors("SecurePolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
