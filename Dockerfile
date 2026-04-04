@@ -1,28 +1,29 @@
 # =========================
-# Multi-stage Dockerfile for .NET 10 API
+# Multi-stage Dockerfile for .NET 7 API (Render compatible)
 # =========================
 
 # -------- Build Stage --------
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 
-# Copy only the API project first to speed up restore
-COPY TeamIndia.TalentFlow.API/ ./TeamIndia.TalentFlow.API/
-
-# If you have a solution file, copy it as well
-# COPY TIms-Backend.sln ./
-
-# Set working directory to the API project
-WORKDIR /src/TeamIndia.TalentFlow.API
+# Copy solution and all project files
+COPY TeamIndia.TalentFlow/TIms-Backend.sln ./
+COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.API/*.csproj TeamIndia.TalentFlow.API/
+COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Domain/*.csproj TeamIndia.TalentFlow.Domain/
+COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Application/*.csproj TeamIndia.TalentFlow.Application/
+COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Infrastructure/*.csproj TeamIndia.TalentFlow.Infrastructure/
 
 # Restore NuGet packages
-RUN dotnet restore
+RUN dotnet restore TeamIndia.TalentFlow.API/TeamIndia.TalentFlow.API.csproj
 
-# Publish the API
-RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+# Copy full source code
+COPY TeamIndia.TalentFlow/. ./
+
+# Publish API project
+RUN dotnet publish TeamIndia.TalentFlow.API/TeamIndia.TalentFlow.API.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 # -------- Runtime Stage --------
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
 
 # Bind to PORT environment variable (Render provides $PORT)
@@ -33,5 +34,4 @@ EXPOSE 5000
 COPY --from=build /app/publish .
 
 # ---------- Entrypoint ----------
-# Use inline entrypoint instead of separate file
 ENTRYPOINT ["dotnet", "TeamIndia.TalentFlow.API.dll"]
