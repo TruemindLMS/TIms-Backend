@@ -1,37 +1,33 @@
-# Multi-stage Dockerfile tuned for .NET 10
-# Builds the solution and publishes the API into a lean runtime image.
-
-# 1) Build stage - use the full SDK
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 
-# Copy solution and project files for restore (adjust paths if needed)
-COPY *.sln ./
-COPY TeamIndia.TalentFlow.API/TeamIndia.TalentFlow.API.csproj TeamIndia.TalentFlow.API/
-COPY TeamIndia.TalentFlow.Infrastructure/TeamIndia.TalentFlow.Infrastructure.csproj TeamIndia.TalentFlow.Infrastructure/
-COPY TeamIndia.TalentFlow.Application/TeamIndia.TalentFlow.Application.csproj TeamIndia.TalentFlow.Application/
-COPY TeamIndia.TalentFlow.Domain/TeamIndia.TalentFlow.Domain.csproj TeamIndia.TalentFlow.Domain/
+# Copy solution and csproj files
+COPY TIms-Backend.sln ./
+COPY TIms-Backend/TeamIndia.TalentFlow/TeamIndia.TalentFlow.API/*.csproj TeamIndia.TalentFlow.API/
+COPY TIms-Backend/TeamIndia.TalentFlow/TeamIndia.TalentFlow.Domain/*.csproj TeamIndia.TalentFlow.Domain/
+COPY TIms-Backend/TeamIndia.TalentFlow/TeamIndia.TalentFlow.Application/*.csproj TeamIndia.TalentFlow.Application/
+COPY TIms-Backend/TeamIndia.TalentFlow/TeamIndia.TalentFlow.Infrastructure/*.csproj TeamIndia.TalentFlow.Infrastructure/
 
 # Restore NuGet packages
 RUN dotnet restore TeamIndia.TalentFlow.API/TeamIndia.TalentFlow.API.csproj
 
-# Copy everything and publish
-COPY . .
+# Copy all project files
+COPY TIms-Backend/TeamIndia.TalentFlow/. ./
+
+# Publish API project
 RUN dotnet publish TeamIndia.TalentFlow.API/TeamIndia.TalentFlow.API.csproj -c Release -o /app/publish /p:UseAppHost=false
 
-# 2) Runtime stage - use ASP.NET Core runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
 
-# Bind to PORT from environment (Render will provide $PORT)
+# Bind to PORT from Render
 ENV ASPNETCORE_URLS="http://0.0.0.0:${PORT:-5000}"
 EXPOSE 5000
 
-# Copy published output from build stage
+# Copy published output
 COPY --from=build /app/publish .
 
-# Optional: healthcheck (simple TCP check)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:5000/ || exit 1
-
 # Start the application
-ENTRYPOINT ["bash", "-lc", "dotnet TeamIndia.TalentFlow.API.dll"]
+ENTRYPOINT ["dotnet", "TeamIndia.TalentFlow.API.dll"]
