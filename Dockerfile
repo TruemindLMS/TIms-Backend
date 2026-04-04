@@ -7,14 +7,14 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 
 # Copy solution and all project files
-COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.slnx ./TeamIndia.TalentFlow.slnx
+COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.sln ./TeamIndia.TalentFlow.sln
 COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.API/*.csproj TeamIndia.TalentFlow.API/
 COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Domain/*.csproj TeamIndia.TalentFlow.Domain/
 COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Application/*.csproj TeamIndia.TalentFlow.Application/
 COPY TeamIndia.TalentFlow/TeamIndia.TalentFlow.Infrastructure/*.csproj TeamIndia.TalentFlow.Infrastructure/
 
 # Restore NuGet packages using the solution
-RUN dotnet restore TeamIndia.TalentFlow.slnx
+RUN dotnet restore TeamIndia.TalentFlow.sln
 
 # Copy full source code
 COPY TeamIndia.TalentFlow/. ./
