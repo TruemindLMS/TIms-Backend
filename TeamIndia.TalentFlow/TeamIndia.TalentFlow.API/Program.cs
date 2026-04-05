@@ -61,9 +61,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("SecurePolicy", policy =>
     {
-        policy.WithOrigins("https://talentflow-eight-weld.vercel.app/")
-              .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-              .WithHeaders("Content-type", "Authorization");
+        policy.WithOrigins(
+                "http://localhost:3000",
+                "https://talentflow-eight-weld.vercel.app"
+            )
+            .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .WithHeaders("Content-Type", "Authorization");
     });
 });
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITeamServices, TeamIndia.TalentFlow.Application.Services.TeamServices>();
