@@ -21,8 +21,6 @@ public class EmailService : IEmailService
         {
             UseDefaultCredentials = false,
             EnableSsl = true,
-            Timeout = 120000 // 2 minutes
-
         };
 
         _smtpClient.Credentials = new NetworkCredential(_smtpSettings.User, _smtpSettings.Pass);
@@ -30,7 +28,7 @@ public class EmailService : IEmailService
         _fromName = _smtpSettings.FromName;
     }
 
-    public async Task SendConfirmationEmail(string email, string subject, string body)
+    public void SendConfirmationEmail(string email, string subject, string body)
     {
         var mailMessage = new MailMessage
         {
@@ -44,7 +42,7 @@ public class EmailService : IEmailService
 
         try
         {
-        await _smtpClient.SendMailAsync(mailMessage); 
+            _smtpClient.Send(mailMessage);
         }
         catch (Exception ex)
         {
@@ -71,6 +69,6 @@ public class EmailService : IEmailService
             html = html.Replace("{" + kv.Key + "}", kv.Value);
         }
 
-        await SendConfirmationEmail(email, subject, html);
+        await Task.Run(() => SendConfirmationEmail(email, subject, html));
     }
 }
