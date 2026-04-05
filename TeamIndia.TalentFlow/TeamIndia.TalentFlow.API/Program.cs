@@ -51,8 +51,7 @@ builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAdminSer
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAuthService, TeamIndia.TalentFlow.Application.Services.AuthService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IEmailService, TeamIndia.TalentFlow.Application.Services.EmailService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IProfileService, TeamIndia.TalentFlow.Application.Services.ProfileService>();
-builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IEmailService, TeamIndia.TalentFlow.Application.Services.EmailService>();
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOnboardingService, TeamIndia.TalentFlow.Application.Services.OnboardingService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ICourseServices, TeamIndia.TalentFlow.Application.Services.CourseServices>();
 
