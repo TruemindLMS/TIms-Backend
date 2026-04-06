@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "TeamIndia.TalentFlow.API", Version = "v1" });
 });
 
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
                       ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (string.IsNullOrEmpty(connectionString))
@@ -36,15 +36,13 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
-builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<JwtSettings>>().Value);
+
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<JwtSettings>>().Value);
 builder.Services.Configure<SeedAdminSettings>(builder.Configuration.GetSection("SeedAdmin"));
 
 // Infrastructure/Application service registrations
 builder.Services.AddMemoryCache();
-builder.Services.AddScoped<Microsoft.AspNetCore.Identity.UserManager<TeamIndia.TalentFlow.Domain.Entities.ApplicationUser>>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITokenService, TeamIndia.TalentFlow.Application.Services.TokenService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOtpService, TeamIndia.TalentFlow.Application.Services.OtpService>();
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAdminService, TeamIndia.TalentFlow.Application.Services.AdminService>();
