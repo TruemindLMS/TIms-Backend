@@ -40,6 +40,7 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<JwtSettings>>().Value);
 builder.Services.Configure<SeedAdminSettings>(builder.Configuration.GetSection("SeedAdmin"));
+builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
 
 // Infrastructure/Application service registrations
 builder.Services.AddMemoryCache();
