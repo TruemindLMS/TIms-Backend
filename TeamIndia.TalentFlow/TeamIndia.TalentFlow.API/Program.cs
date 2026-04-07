@@ -73,7 +73,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("SecurePolicy", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:5000",
+                "http://localhost:3000",
                 "https://talentflow-eight-weld.vercel.app"
             )
             .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
