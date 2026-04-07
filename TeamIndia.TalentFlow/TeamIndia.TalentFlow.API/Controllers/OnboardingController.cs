@@ -27,16 +27,6 @@ public class OnboardingController : ControllerBase
         return StatusCode(res.StatusCode, res);
     }
 
-    [HttpPost("bio")]
-    public async Task<IActionResult> SubmitBio([FromForm] string? bio, [FromForm] string? profilePictureUrl)
-    {
-        var email = User.FindFirst(ClaimTypes.Email)?.Value;
-        if (string.IsNullOrWhiteSpace(email)) return Unauthorized();
-        // map to consolidated SaveAsync for backward compatibility
-        var res = await _service.SaveAsync(email, bio, profilePictureUrl, null, null);
-        return StatusCode(res.StatusCode, res);
-    }
-
     [HttpPost]
     public async Task<IActionResult> Save([FromForm] string? bio, [FromForm] string? profilePictureUrl, [FromForm] Discipline? discipline, [FromForm] Goal? goal)
     {

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -7,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using TeamIndia.TalentFlow.API.Extensions;
 using TeamIndia.TalentFlow.Application.ApplicationSettings;
+using TeamIndia.TalentFlow.Application.Interfaces;
 using TeamIndia.TalentFlow.Domain.Entities;
 using TeamIndia.TalentFlow.Infrastructure.DbContext;
 
@@ -19,6 +21,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "TeamIndia.TalentFlow.API", Version = "v1" });
+    c.MapType<IFormFile>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
 });
 
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
@@ -36,23 +43,29 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// Configuration bindings
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<JwtSettings>>().Value);
 builder.Services.Configure<SeedAdminSettings>(builder.Configuration.GetSection("SeedAdmin"));
 builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("BrevoSettings"));
-
-// Infrastructure/Application service registrations
-builder.Services.AddMemoryCache();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITokenService, TeamIndia.TalentFlow.Application.Services.TokenService>();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOtpService, TeamIndia.TalentFlow.Application.Services.OtpService>();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAdminService, TeamIndia.TalentFlow.Application.Services.AdminService>();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IAuthService, TeamIndia.TalentFlow.Application.Services.AuthService>();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IEmailService, TeamIndia.TalentFlow.Application.Services.EmailService>();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IProfileService, TeamIndia.TalentFlow.Application.Services.ProfileService>();
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOnboardingService, TeamIndia.TalentFlow.Application.Services.OnboardingService>();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ICourseServices, TeamIndia.TalentFlow.Application.Services.CourseServices>();
+builder.Services.Configure<FrontendSettings>(builder.Configuration.GetSection("Frontend"));
+builder.Services.Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 52428800; });
+
+
+// Service registrations
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ITokenService, TeamIndia.TalentFlow.Application.Services.TokenService>();
+builder.Services.AddScoped<IOtpService, TeamIndia.TalentFlow.Application.Services.OtpService>();
+builder.Services.AddScoped<IAdminService, TeamIndia.TalentFlow.Application.Services.AdminService>();
+builder.Services.AddScoped<IAuthService, TeamIndia.TalentFlow.Application.Services.AuthService>();
+builder.Services.AddScoped<ICloudinaryService, TeamIndia.TalentFlow.Application.Services.CloudinaryService>();
+builder.Services.AddScoped<IEmailService, TeamIndia.TalentFlow.Application.Services.EmailService>();
+builder.Services.AddScoped<IProfileService, TeamIndia.TalentFlow.Application.Services.ProfileService>();
+builder.Services.AddScoped<IOnboardingService, TeamIndia.TalentFlow.Application.Services.OnboardingService>();
+builder.Services.AddScoped<ICourseServices, TeamIndia.TalentFlow.Application.Services.CourseServices>();
 
 
 builder.Services.AddCors(options =>
@@ -60,7 +73,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("SecurePolicy", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:3000",
+                "http://localhost:5000",
                 "https://talentflow-eight-weld.vercel.app"
             )
             .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
@@ -77,12 +90,12 @@ builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IFileStor
     var logger = sp.GetRequiredService<ILogger<TeamIndia.TalentFlow.Application.Services.LocalFileStorageService>>();
     return new TeamIndia.TalentFlow.Application.Services.LocalFileStorageService(env.WebRootPath, logger);
 });
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IUserRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.UserRepository>();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IRoleRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.RoleRepository>();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IOnboardingRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.OnboardingRepository>();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITeamRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.TeamRepository>();
+builder.Services.AddScoped<IUserRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.UserRepository>();
+builder.Services.AddScoped<IRoleRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.RoleRepository>();
+builder.Services.AddScoped<IOnboardingRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.OnboardingRepository>();
+builder.Services.AddScoped<ITeamRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.TeamRepository>();
 builder.Services.AddAuthorization();
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ICourseRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.CourseRepository>();
+builder.Services.AddScoped<ICourseRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.CourseRepository>();
 
 // Configure JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>() ?? new JwtSettings();
@@ -132,7 +145,6 @@ catch
 {
 }
 
-// Configure the HTTP request pipeline.
 // Enable swagger when in Development OR when ENABLE_SWAGGER is set to true (env or config)
 var enableSwagger = app.Environment.IsDevelopment()
                     || builder.Configuration.GetValue<bool>("ENABLE_SWAGGER")

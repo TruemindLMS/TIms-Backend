@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using TeamIndia.TalentFlow.Application.ApplicationSettings;
 using TeamIndia.TalentFlow.Application.Common;
 using TeamIndia.TalentFlow.Application.Dtos;
@@ -15,8 +16,9 @@ public class AuthService : IAuthService
     private readonly IOtpService _otpService;
     private readonly IEmailService _emailService;
     private readonly JwtSettings _jwtSettings;
+    private readonly FrontendSettings _frontendSettings;
 
-    public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, ITokenService tokenService, IOtpService otpService, IEmailService emailService, JwtSettings jwtSettings)
+    public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, ITokenService tokenService, IOtpService otpService, IEmailService emailService, JwtSettings jwtSettings, IOptions<FrontendSettings> frontendOptions)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
@@ -24,6 +26,7 @@ public class AuthService : IAuthService
         _otpService = otpService;
         _emailService = emailService;
         _jwtSettings = jwtSettings;
+        _frontendSettings = frontendOptions?.Value ?? new FrontendSettings();
     }
 
     public async Task<BaseResponse> ResendOtpAsync(string email)
@@ -65,7 +68,25 @@ public class AuthService : IAuthService
 
         var token = await _userRepository.GeneratePasswordResetTokenAsync(user);
 
-        var resetUrl = $"{_jwtSettings.Issuer}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+        var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+        var isDevelopment = string.Equals(env, "Development", StringComparison.OrdinalIgnoreCase);
+
+        string frontendBase = string.Empty;
+        if (isDevelopment && !string.IsNullOrWhiteSpace(_frontendSettings.LocalUrl))
+        {
+            frontendBase = _frontendSettings.LocalUrl.TrimEnd('/');
+        }
+        else if (!isDevelopment && !string.IsNullOrWhiteSpace(_frontendSettings.ProductionUrl))
+        {
+            frontendBase = _frontendSettings.ProductionUrl.TrimEnd('/');
+        }
+
+        if (string.IsNullOrWhiteSpace(frontendBase))
+        {
+            frontendBase = !string.IsNullOrWhiteSpace(_frontendSettings.Url) ? _frontendSettings.Url.TrimEnd('/') : _jwtSettings.Issuer;
+        }
+
+        var resetUrl = $"{frontendBase}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
 
         var subject = "Reset your password";
 
