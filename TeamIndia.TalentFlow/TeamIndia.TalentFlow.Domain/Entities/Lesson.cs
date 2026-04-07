@@ -9,5 +9,7 @@ public class Lesson
     public virtual Course Course { get; set; } = null!;
     public Guid? ModuleId { get; set; }
     public virtual Module? Module { get; set; }
+    public string? VideoUrl { get; set; }
+
 
 }

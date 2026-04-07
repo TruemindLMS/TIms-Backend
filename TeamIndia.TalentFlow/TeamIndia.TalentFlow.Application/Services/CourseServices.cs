@@ -30,7 +30,7 @@ namespace TeamIndia.TalentFlow.Application.Services
                 {
                     foreach (var l in request.Lessons)
                     {
-                        var lesson = new Lesson { LessonId = Guid.NewGuid(), CourseId = courseId, ModuleId = module.ModuleId, Title = l.Title.Trim(), Content = l.Content };
+                        var lesson = new Lesson { LessonId = Guid.NewGuid(), CourseId = courseId, ModuleId = module.ModuleId, Title = l.Title.Trim(), Content = l.Content, VideoUrl = l.VideoUrl };
                         lessons.Add(lesson);
                         await _repo.AddLessonToModuleAsync(lesson);
                     }
@@ -52,10 +52,10 @@ namespace TeamIndia.TalentFlow.Application.Services
                 var module = await _repo.GetModuleByIdAsync(moduleId);
                 if (module == null || module.CourseId != courseId) return BaseResponse<LessonResponseDto>.Fail("Module not found for course", null, 404);
 
-                var lesson = new Lesson { LessonId = Guid.NewGuid(), CourseId = courseId, ModuleId = moduleId, Title = request.Title.Trim(), Content = request.Content };
+                var lesson = new Lesson { LessonId = Guid.NewGuid(), CourseId = courseId, ModuleId = moduleId, Title = request.Title.Trim(), Content = request.Content, VideoUrl = request.VideoUrl };
                 await _repo.AddLessonToModuleAsync(lesson);
 
-                var dto = new LessonResponseDto { LessonId = lesson.LessonId, Title = lesson.Title, Content = lesson.Content, ModuleId = lesson.ModuleId };
+                var dto = new LessonResponseDto { LessonId = lesson.LessonId, Title = lesson.Title, Content = lesson.Content, ModuleId = lesson.ModuleId, VideoUrl = lesson.VideoUrl };
                 return BaseResponse<LessonResponseDto>.Ok(dto, "Lesson created", 201);
             }
             catch (Exception ex)
@@ -86,7 +86,7 @@ namespace TeamIndia.TalentFlow.Application.Services
                         {
                             foreach (var l in m.Lessons)
                             {
-                                var lesson = new Lesson { LessonId = Guid.NewGuid(), CourseId = course.CourseId, ModuleId = module.ModuleId, Title = l.Title.Trim(), Content = l.Content };
+                                var lesson = new Lesson { LessonId = Guid.NewGuid(), CourseId = course.CourseId, ModuleId = module.ModuleId, Title = l.Title.Trim(), Content = l.Content, VideoUrl = l.VideoUrl };
                                 lessons.Add(lesson);
                             }
                         }
@@ -98,7 +98,7 @@ namespace TeamIndia.TalentFlow.Application.Services
                 foreach (var les in lessons) await _repo.AddLessonAsync(les);
 
                 var dto = new CourseResponseDto { CourseId = course.CourseId, Title = course.Title, Description = course.Description };
-                dto.Modules = modules.Select(m => new ModuleResponseDto { ModuleId = m.ModuleId, Title = m.Title, OrderIndex = m.OrderIndex, Lessons = lessons.Where(l => l.ModuleId == m.ModuleId).Select(ll => new LessonResponseDto { LessonId = ll.LessonId, Title = ll.Title, Content = ll.Content, ModuleId = ll.ModuleId }).ToList() }).ToList();
+                dto.Modules = modules.Select(m => new ModuleResponseDto { ModuleId = m.ModuleId, Title = m.Title, OrderIndex = m.OrderIndex, Lessons = lessons.Where(l => l.ModuleId == m.ModuleId).Select(ll => new LessonResponseDto { LessonId = ll.LessonId, Title = ll.Title, Content = ll.Content, ModuleId = ll.ModuleId, VideoUrl = ll.VideoUrl }).ToList() }).ToList();
 
                 return BaseResponse<CourseResponseDto>.Ok(dto, "Course created", 201);
             }
@@ -134,7 +134,7 @@ namespace TeamIndia.TalentFlow.Application.Services
                     CourseId = course.CourseId,
                     Title = course.Title,
                     Description = course.Description,
-                    Modules = course.Modules.Select(m => new ModuleResponseDto { ModuleId = m.ModuleId, Title = m.Title, OrderIndex = m.OrderIndex, Lessons = m.Lessons.Select(l => new LessonResponseDto { LessonId = l.LessonId, Title = l.Title, Content = l.Content, ModuleId = l.ModuleId }).ToList() }).ToList()
+                    Modules = course.Modules.Select(m => new ModuleResponseDto { ModuleId = m.ModuleId, Title = m.Title, OrderIndex = m.OrderIndex, Lessons = m.Lessons.Select(l => new LessonResponseDto { LessonId = l.LessonId, Title = l.Title, Content = l.Content, ModuleId = l.ModuleId, VideoUrl = l.VideoUrl }).ToList() }).ToList()
                 };
 
                 return BaseResponse<CourseResponseDto?>.Ok(dto, "OK", 200);
@@ -179,7 +179,7 @@ namespace TeamIndia.TalentFlow.Application.Services
 
                 await _repo.UpdateModuleAsync(module);
 
-                var dto = new ModuleResponseDto { ModuleId = module.ModuleId, Title = module.Title, OrderIndex = module.OrderIndex, Lessons = module.Lessons.Select(l => new LessonResponseDto { LessonId = l.LessonId, Title = l.Title, Content = l.Content, ModuleId = l.ModuleId }).ToList() };
+                var dto = new ModuleResponseDto { ModuleId = module.ModuleId, Title = module.Title, OrderIndex = module.OrderIndex, Lessons = module.Lessons.Select(l => new LessonResponseDto { LessonId = l.LessonId, Title = l.Title, Content = l.Content, ModuleId = l.ModuleId, VideoUrl = l.VideoUrl }).ToList() };
 
                 return BaseResponse<ModuleResponseDto>.Ok(dto, "Module updated", 200);
             }

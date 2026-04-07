@@ -8,5 +8,6 @@ namespace TeamIndia.TalentFlow.Application.Dtos.Response
         public string Title { get; set; } = string.Empty;
         public string? Content { get; set; }
         public Guid? ModuleId { get; set; }
+        public string? VideoUrl { get; set; }
     }
 }
