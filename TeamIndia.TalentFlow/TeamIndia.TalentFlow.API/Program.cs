@@ -27,6 +27,23 @@ builder.Services.AddSwaggerGen(c =>
         Type = "string",
         Format = "binary"
     });
+    // Add Bearer JWT definition so Swagger can send Authorization: Bearer <token>
+    var jwtScheme = new OpenApiSecurityScheme
+    {
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Description = "Enter 'Bearer' [space] and then your JWT token. Example: \"Bearer abcdef...\"",
+        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = JwtBearerDefaults.AuthenticationScheme }
+    };
+
+    c.AddSecurityDefinition(jwtScheme.Reference.Id, jwtScheme);
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtScheme, new List<string>() }
+    });
 });
 
 builder.Services.Configure<FormOptions>(options =>
@@ -84,6 +101,7 @@ builder.Services.AddScoped<IEmailService, TeamIndia.TalentFlow.Application.Servi
 builder.Services.AddScoped<IProfileService, TeamIndia.TalentFlow.Application.Services.ProfileService>();
 builder.Services.AddScoped<IOnboardingService, TeamIndia.TalentFlow.Application.Services.OnboardingService>();
 builder.Services.AddScoped<ICourseServices, TeamIndia.TalentFlow.Application.Services.CourseServices>();
+builder.Services.AddScoped<IProgressService, TeamIndia.TalentFlow.Application.Services.ProgressService>();
 
 
 builder.Services.AddCors(options =>
@@ -115,6 +133,8 @@ builder.Services.AddScoped<IOnboardingRepository, TeamIndia.TalentFlow.Infrastru
 builder.Services.AddScoped<ITeamRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.TeamRepository>();
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<ICourseRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.CourseRepository>();
+builder.Services.AddScoped<IProgressRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.ProgressRepository>();
+
 
 // Configure JWT authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>() ?? new JwtSettings();

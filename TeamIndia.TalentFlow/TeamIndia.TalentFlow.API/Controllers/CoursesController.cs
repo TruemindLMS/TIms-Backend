@@ -7,6 +7,8 @@ namespace TeamIndia.TalentFlow.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
+
     public class CoursesController : ControllerBase
     {
         private readonly ICourseServices _services;

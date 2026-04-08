@@ -8,6 +8,8 @@ namespace TeamIndia.TalentFlow.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Mentor")]
+
     public class TeamController : ControllerBase
     {
         private readonly ITeamServices _teamService;
@@ -18,7 +20,6 @@ namespace TeamIndia.TalentFlow.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Mentor")]
         public async Task<IActionResult> CreateTeam([FromBody] CreateTeamRequestDto request)
         {
             var res = await _teamService.CreateTeamAsync(request);
@@ -40,7 +41,6 @@ namespace TeamIndia.TalentFlow.API.Controllers
         }
 
         [HttpPost("{teamId:guid}/members")]
-        [Authorize(Roles = "Admin,Mentor")]
         public async Task<IActionResult> AddMember(Guid teamId, [FromBody] AddTeamMemberRequestDto request)
         {
             var res = await _teamService.AddMemberAsync(teamId, request);
@@ -55,7 +55,6 @@ namespace TeamIndia.TalentFlow.API.Controllers
         }
 
         [HttpPost("{teamId:guid}/tasks")]
-        [Authorize(Roles = "Admin,Mentor")]
         public async Task<IActionResult> CreateTask(Guid teamId, [FromBody] CreateTeamTaskRequestDto request)
         {
             var res = await _teamService.CreateTaskAsync(teamId, request);
@@ -70,7 +69,6 @@ namespace TeamIndia.TalentFlow.API.Controllers
         }
 
         [HttpPatch("tasks/{teamTaskId:guid}/status")]
-        [Authorize(Roles = "Admin,Mentor")]
         public async Task<IActionResult> UpdateTaskStatus(Guid teamTaskId, [FromBody] UpdateTeamTaskStatusRequestDto request)
         {
             var res = await _teamService.UpdateTaskStatusAsync(teamTaskId, request);

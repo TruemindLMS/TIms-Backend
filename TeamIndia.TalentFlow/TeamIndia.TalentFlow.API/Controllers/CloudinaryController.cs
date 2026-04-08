@@ -9,6 +9,8 @@ namespace TeamIndia.TalentFlow.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Admin")]
+
 public class CloudinaryController : ControllerBase
 {
     private readonly ICloudinaryService _cloudinaryService;
