@@ -100,5 +100,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             .WithMany(m => m.Lessons)
             .HasForeignKey(l => l.ModuleId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<Course>()
+            .HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey("MentorId")
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

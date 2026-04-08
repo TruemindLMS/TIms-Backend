@@ -62,4 +62,25 @@ public class CloudinaryService : ICloudinaryService
 
         return result.SecureUrl.AbsoluteUri;
     }
+
+    public async Task<string> UploadAssignmentFileAsync(IFormFile file, string userId, Guid assignmentId)
+    {
+        if (file == null || file.Length == 0)
+            throw new ArgumentException("File is empty");
+
+        var publicId = $"assignment_{assignmentId}_{userId}";
+        var uploadParams = new RawUploadParams
+        {
+            File = new FileDescription(file.FileName, file.OpenReadStream()),
+            Folder = "assignments",
+            PublicId = publicId,
+            Overwrite = true
+        };
+
+        var result = await _cloudinary.UploadAsync(uploadParams);
+        if (result.Error != null)
+            throw new Exception(result.Error.Message);
+
+        return result.SecureUrl.AbsoluteUri;
+    }
 }

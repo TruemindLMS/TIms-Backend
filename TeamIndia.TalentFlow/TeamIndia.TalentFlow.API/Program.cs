@@ -9,8 +9,10 @@ using System.Text;
 using TeamIndia.TalentFlow.API.Extensions;
 using TeamIndia.TalentFlow.Application.ApplicationSettings;
 using TeamIndia.TalentFlow.Application.Interfaces;
+using TeamIndia.TalentFlow.Application.Services;
 using TeamIndia.TalentFlow.Domain.Entities;
 using TeamIndia.TalentFlow.Infrastructure.DbContext;
+using TeamIndia.TalentFlow.Infrastructure.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -92,16 +94,18 @@ builder.Services.Configure<FormOptions>(options => { options.MultipartBodyLength
 
 // Service registrations
 builder.Services.AddMemoryCache();
-builder.Services.AddScoped<ITokenService, TeamIndia.TalentFlow.Application.Services.TokenService>();
-builder.Services.AddScoped<IOtpService, TeamIndia.TalentFlow.Application.Services.OtpService>();
-builder.Services.AddScoped<IAdminService, TeamIndia.TalentFlow.Application.Services.AdminService>();
-builder.Services.AddScoped<IAuthService, TeamIndia.TalentFlow.Application.Services.AuthService>();
-builder.Services.AddScoped<ICloudinaryService, TeamIndia.TalentFlow.Application.Services.CloudinaryService>();
-builder.Services.AddScoped<IEmailService, TeamIndia.TalentFlow.Application.Services.EmailService>();
-builder.Services.AddScoped<IProfileService, TeamIndia.TalentFlow.Application.Services.ProfileService>();
-builder.Services.AddScoped<IOnboardingService, TeamIndia.TalentFlow.Application.Services.OnboardingService>();
-builder.Services.AddScoped<ICourseServices, TeamIndia.TalentFlow.Application.Services.CourseServices>();
-builder.Services.AddScoped<IProgressService, TeamIndia.TalentFlow.Application.Services.ProgressService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IOnboardingService, OnboardingService>();
+builder.Services.AddScoped<ICourseServices, CourseServices>();
+builder.Services.AddScoped<IProgressService, ProgressService>();
+builder.Services.AddScoped<IAssignmentService, AssignmentService>();
+
 
 
 builder.Services.AddCors(options =>
@@ -117,23 +121,25 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITeamServices, TeamIndia.TalentFlow.Application.Services.TeamServices>();
+builder.Services.AddScoped<ITeamServices, TeamServices>();
 ;
 
 // Repositories
-builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.IFileStorageService>(sp =>
+builder.Services.AddScoped<IFileStorageService>(sp =>
 {
     var env = sp.GetRequiredService<IWebHostEnvironment>();
-    var logger = sp.GetRequiredService<ILogger<TeamIndia.TalentFlow.Application.Services.LocalFileStorageService>>();
-    return new TeamIndia.TalentFlow.Application.Services.LocalFileStorageService(env.WebRootPath, logger);
+    var logger = sp.GetRequiredService<ILogger<LocalFileStorageService>>();
+    return new LocalFileStorageService(env.WebRootPath, logger);
 });
-builder.Services.AddScoped<IUserRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.UserRepository>();
-builder.Services.AddScoped<IRoleRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.RoleRepository>();
-builder.Services.AddScoped<IOnboardingRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.OnboardingRepository>();
-builder.Services.AddScoped<ITeamRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.TeamRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IOnboardingRepository, OnboardingRepository>();
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddAuthorization();
-builder.Services.AddScoped<ICourseRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.CourseRepository>();
-builder.Services.AddScoped<IProgressRepository, TeamIndia.TalentFlow.Infrastructure.Repositories.ProgressRepository>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
+builder.Services.AddScoped<IAssignmentRepository, AssignmentRepository>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 
 
 // Configure JWT authentication
@@ -179,6 +185,7 @@ try
     // Apply any pending migrations to ensure database schema is up to date
     db.Database.Migrate();
     TeamIndia.TalentFlow.API.Helpers.DataSeeder.SeedCoursesAsync(db).GetAwaiter().GetResult();
+    TeamIndia.TalentFlow.API.Helpers.TeamDataSeeder.SeedTeamsAsync(db).GetAwaiter().GetResult();
 }
 catch
 {

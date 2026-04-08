@@ -19,6 +19,7 @@ namespace TeamIndia.TalentFlow.Application.Interfaces
         Task<IEnumerable<Lesson>> GetLessonsByCourseIdAsync(Guid courseId);
         Task<Lesson?> GetLessonByIdAsync(Guid lessonId);
         Task UpdateLessonAsync(Lesson lesson);
+        Task<bool> IsUserEnrolledAsync(Guid courseId, Guid userId);
         Task<Module> AddModuleToCourseAsync(Module module);
         Task<Lesson> AddLessonToModuleAsync(Lesson lesson);
         Task DeleteCourseAsync(Guid courseId);

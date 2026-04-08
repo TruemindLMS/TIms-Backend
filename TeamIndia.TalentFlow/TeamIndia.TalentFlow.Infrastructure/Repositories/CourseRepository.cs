@@ -88,6 +88,11 @@ namespace TeamIndia.TalentFlow.Infrastructure.Repositories
             await _db.SaveChangesAsync();
         }
 
+        public async Task<bool> IsUserEnrolledAsync(Guid courseId, Guid userId)
+        {
+            return await _db.Enrollments.AnyAsync(e => e.CourseId == courseId && e.UserId == userId);
+        }
+
         public async Task UpdateCourseAsync(Course course)
         {
             _db.Courses.Update(course);

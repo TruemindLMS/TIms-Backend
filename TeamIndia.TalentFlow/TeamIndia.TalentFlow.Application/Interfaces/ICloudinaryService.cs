@@ -6,5 +6,6 @@ namespace TeamIndia.TalentFlow.Application.Interfaces
     {
         Task<string> UploadCourseVideoAsync(IFormFile file);
         Task<string> UploadProfileImageAsync(IFormFile file, string userId);
+        Task<string> UploadAssignmentFileAsync(IFormFile file, string userId, Guid assignmentId);
     }
 }
