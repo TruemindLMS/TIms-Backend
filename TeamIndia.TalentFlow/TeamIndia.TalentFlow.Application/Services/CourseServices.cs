@@ -198,10 +198,18 @@ namespace TeamIndia.TalentFlow.Application.Services
 
                 lesson.Title = request.Title ?? lesson.Title;
                 lesson.Content = request.Content ?? lesson.Content;
+                lesson.VideoUrl = request.VideoUrl ?? lesson.VideoUrl;
 
                 await _repo.UpdateLessonAsync(lesson);
 
-                var dto = new LessonResponseDto { LessonId = lesson.LessonId, Title = lesson.Title, Content = lesson.Content, ModuleId = lesson.ModuleId };
+                var dto = new LessonResponseDto
+                {
+                    LessonId = lesson.LessonId,
+                    Title = lesson.Title,
+                    Content = lesson.Content,
+                    ModuleId = lesson.ModuleId,
+                    VideoUrl = lesson.VideoUrl
+                };
                 return BaseResponse<LessonResponseDto>.Ok(dto, "Lesson updated", 200);
             }
             catch (Exception ex)
@@ -258,6 +266,6 @@ namespace TeamIndia.TalentFlow.Application.Services
             }
         }
 
-        
+
     }
 }

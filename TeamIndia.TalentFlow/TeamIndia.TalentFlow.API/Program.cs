@@ -12,6 +12,7 @@ using TeamIndia.TalentFlow.Application.Interfaces;
 using TeamIndia.TalentFlow.Domain.Entities;
 using TeamIndia.TalentFlow.Infrastructure.DbContext;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -26,6 +27,23 @@ builder.Services.AddSwaggerGen(c =>
         Type = "string",
         Format = "binary"
     });
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 524288000;
+});
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = long.MaxValue;
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = long.MaxValue;
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartHeadersLengthLimit = int.MaxValue;
 });
 
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
@@ -80,6 +98,7 @@ builder.Services.AddCors(options =>
             .WithHeaders("Content-Type", "Authorization");
     });
 });
+
 builder.Services.AddScoped<TeamIndia.TalentFlow.Application.Interfaces.ITeamServices, TeamIndia.TalentFlow.Application.Services.TeamServices>();
 ;
 

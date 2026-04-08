@@ -86,7 +86,6 @@ namespace TeamIndia.TalentFlow.API.Controllers
         }
 
         [HttpPut("lessons/{lessonId:guid}")]
-        [Authorize(Roles = "Admin,Mentor")]
         public async Task<IActionResult> UpdateLesson(Guid lessonId, [FromBody] CreateLessonRequestDto request)
         {
             var res = await _services.UpdateLessonAsync(lessonId, request);

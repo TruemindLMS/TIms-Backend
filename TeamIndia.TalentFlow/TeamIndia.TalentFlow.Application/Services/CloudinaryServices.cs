@@ -29,7 +29,7 @@ public class CloudinaryService : ICloudinaryService
             throw new ArgumentException("File is empty");
 
         var publicId = Guid.NewGuid().ToString();
-        var uploadParams = new RawUploadParams
+        var uploadParams = new VideoUploadParams
         {
             File = new FileDescription(file.FileName, file.OpenReadStream()),
             Folder = "courses",
