@@ -6,6 +6,7 @@ namespace TeamIndia.TalentFlow.Application.Interfaces
     {
         Task<int> GetTotalLessonsAsync(Guid courseId);
         Task<int> GetCompletedLessonsAsync(Guid courseId, Guid userId);
+    Task<DateTime?> GetCourseCompletionDateAsync(Guid courseId, Guid userId);
         Task<int> GetTotalAssignmentsAsync(Guid courseId);
         Task<int> GetSubmittedAssignmentsAsync(Guid courseId, Guid userId);
 

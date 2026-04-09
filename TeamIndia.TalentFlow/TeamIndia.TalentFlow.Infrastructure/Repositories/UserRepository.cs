@@ -75,4 +75,9 @@ public class UserRepository : IUserRepository
 
     public Task<IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword)
         => _userManager.ResetPasswordAsync(user, token, newPassword);
+
+    public async Task<ApplicationUser?> GetByIdAsync(Guid userId)
+    {
+        return await _userManager.FindByIdAsync(userId.ToString());
+    }
 }

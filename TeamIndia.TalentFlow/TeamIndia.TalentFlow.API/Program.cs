@@ -105,6 +105,7 @@ builder.Services.AddScoped<IOnboardingService, OnboardingService>();
 builder.Services.AddScoped<ICourseServices, CourseServices>();
 builder.Services.AddScoped<IProgressService, ProgressService>();
 builder.Services.AddScoped<IAssignmentService, AssignmentService>();
+builder.Services.AddScoped<ICertificateService, CertificateService>();
 
 
 
@@ -132,14 +133,16 @@ builder.Services.AddScoped<IFileStorageService>(sp =>
     return new LocalFileStorageService(env.WebRootPath, logger);
 });
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IOnboardingRepository, OnboardingRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
 builder.Services.AddScoped<IAssignmentRepository, AssignmentRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
+
 
 
 // Configure JWT authentication
@@ -182,7 +185,6 @@ try
 
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    // Apply any pending migrations to ensure database schema is up to date
     db.Database.Migrate();
     TeamIndia.TalentFlow.API.Helpers.DataSeeder.SeedCoursesAsync(db).GetAwaiter().GetResult();
     TeamIndia.TalentFlow.API.Helpers.TeamDataSeeder.SeedTeamsAsync(db).GetAwaiter().GetResult();

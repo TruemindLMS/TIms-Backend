@@ -41,58 +41,26 @@ public class AssignmentsController : ControllerBase
     }
 
     [HttpPost("{assignmentId:guid}/submit")]
-    public async Task<IActionResult> SubmitAssignment(Guid assignmentId)
+    public async Task<IActionResult> SubmitAssignment(Guid assignmentId, [FromForm] CreateSubmissionRequestDto dto)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrWhiteSpace(userIdClaim)) return Unauthorized();
         if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
+        if (dto == null) return BadRequest();
 
-        // support both multipart/form-data and json
-        if (Request.HasFormContentType)
+        dto.AssignmentId = assignmentId;
+
+        var assignmentRes = await _service.GetAssignmentAsync(assignmentId);
+        if (assignmentRes == null || assignmentRes.StatusCode == 404) return NotFound();
+        var courseId = assignmentRes.Data.CourseId;
+
+        var isEnrolled = await _courseRepo.IsUserEnrolledAsync(courseId, userId);
+        if (!isEnrolled && !User.IsInRole("Admin") && !User.IsInRole("Mentor"))
         {
-            var form = await Request.ReadFormAsync();
-            var text = form["TextResponse"].FirstOrDefault();
-            var link = form["LinkUrl"].FirstOrDefault();
-            var file = form.Files.FirstOrDefault();
-
-            var dto = new CreateSubmissionRequestDto
-            {
-                AssignmentId = assignmentId,
-                TextResponse = text,
-                LinkUrl = link,
-                File = file
-            };
-
-            var assignmentRes = await _service.GetAssignmentAsync(assignmentId);
-            if (assignmentRes == null || assignmentRes.StatusCode == 404) return NotFound();
-            var courseId = assignmentRes.Data.CourseId;
-
-            var isEnrolled = await _courseRepo.IsUserEnrolledAsync(courseId, userId);
-            if (!isEnrolled && !User.IsInRole("Admin") && !User.IsInRole("Mentor"))
-            {
-                return Forbid();
-            }
-
-            var res = await _service.SubmitAssignmentAsync(dto, userId);
-            return StatusCode(res.StatusCode, res);
+            return Forbid();
         }
-        else
-        {
-            var body = await System.Text.Json.JsonSerializer.DeserializeAsync<CreateSubmissionRequestDto>(Request.Body);
-            if (body == null) return BadRequest();
-            body.AssignmentId = assignmentId;
-            var assignmentRes = await _service.GetAssignmentAsync(assignmentId);
-            if (assignmentRes == null || assignmentRes.StatusCode == 404) return NotFound();
-            var courseId = assignmentRes.Data.CourseId;
 
-            var isEnrolled = await _courseRepo.IsUserEnrolledAsync(courseId, userId);
-            if (!isEnrolled && !User.IsInRole("Admin") && !User.IsInRole("Mentor"))
-            {
-                return Forbid();
-            }
-
-            var res = await _service.SubmitAssignmentAsync(body, userId);
-            return StatusCode(res.StatusCode, res);
-        }
+        var res = await _service.SubmitAssignmentAsync(dto, userId);
+        return StatusCode(res.StatusCode, res);
     }
 }

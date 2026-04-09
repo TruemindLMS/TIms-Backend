@@ -1,4 +1,4 @@
-using TeamIndia.TalentFlow.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using TeamIndia.TalentFlow.Domain.Enums;
 
 namespace TeamIndia.TalentFlow.Application.Dtos;
@@ -10,4 +10,6 @@ public class UpdateProfileRequest
     public string? Location { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public Gender? Gender { get; set; }
+    public string? PhotoUrl { get; set; }
+    public IFormFile? PhotoFile { get; set; }
 }

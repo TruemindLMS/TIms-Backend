@@ -19,6 +19,12 @@ public class OnboardingRepository : IOnboardingRepository
         return await _db.UserOnboardings.FirstOrDefaultAsync(o => o.UserId == userId);
     }
 
+    public async Task<UserOnboarding?> GetOnboardingByUserIdAsync(Guid userId)
+    {
+        return await _db.UserOnboardings.FirstOrDefaultAsync(o => o.UserId == userId);
+    }
+
+
     public async Task<IdentityResult> SaveAsync(UserOnboarding onboarding)
     {
         var existing = await _db.UserOnboardings.FirstOrDefaultAsync(o => o.UserId == onboarding.UserId);

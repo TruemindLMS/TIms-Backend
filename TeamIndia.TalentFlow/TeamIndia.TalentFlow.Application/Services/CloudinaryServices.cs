@@ -48,7 +48,7 @@ public class CloudinaryService : ICloudinaryService
         if (file == null || file.Length == 0)
             throw new ArgumentException("File is empty");
 
-        var uploadParams = new RawUploadParams
+        var uploadParams = new ImageUploadParams
         {
             File = new FileDescription(file.FileName, file.OpenReadStream()),
             Folder = "profiles",
@@ -81,6 +81,21 @@ public class CloudinaryService : ICloudinaryService
         if (result.Error != null)
             throw new Exception(result.Error.Message);
 
+        return result.SecureUrl.AbsoluteUri;
+    }
+
+    public async Task<string> UploadRawAsync(System.IO.Stream stream, string fileName, string folder, string publicId)
+    {
+        var uploadParams = new RawUploadParams
+        {
+            File = new FileDescription(fileName, stream),
+            Folder = folder,
+            PublicId = publicId,
+            Overwrite = true
+        };
+
+        var result = await _cloudinary.UploadAsync(uploadParams);
+        if (result.Error != null) throw new Exception(result.Error.Message);
         return result.SecureUrl.AbsoluteUri;
     }
 }

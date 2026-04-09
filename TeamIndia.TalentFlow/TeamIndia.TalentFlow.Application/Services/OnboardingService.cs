@@ -28,7 +28,6 @@ public class OnboardingService : IOnboardingService
         if (discipline.HasValue) onboarding.Discipline = discipline.Value;
         if (goal.HasValue) onboarding.Goal = goal.Value;
 
-        // mark complete if all fields present
         onboarding.IsComplete = onboarding.Bio != null && onboarding.ProfilePictureUrl != null && onboarding.Discipline != null && onboarding.Goal != null;
         onboarding.UpdatedAtUtc = DateTime.UtcNow;
 
@@ -54,5 +53,26 @@ public class OnboardingService : IOnboardingService
         };
 
         return BaseResponse<OnboardingStatusDto>.Ok(dto, "OK", 200);
+    }
+
+    public async Task<BaseResponse<string>> GetProfilePictureUrlAsync(string userEmail)
+    {
+        var user = await _userRepo.FindByEmailAsync(userEmail);
+        if (user == null) return BaseResponse<string>.Fail("User not found", null, 404);
+
+        var onboarding = await _repo.GetAsync(user.Id);
+        var url = onboarding?.ProfilePictureUrl;
+        return BaseResponse<string>.Ok(url ?? string.Empty, "OK", 200);
+    }
+
+    public async Task<BaseResponse<string>> UploadProfilePictureForUserAsync(Guid userId, Microsoft.AspNetCore.Http.IFormFile file)
+    {
+        // This method is intentionally left as a pass-through placeholder. Actual file upload is handled by the controller which has access to ICloudinaryService.
+        return BaseResponse<string>.Fail("Not implemented here", null, 500);
+    }
+
+    public async Task<UserOnboarding?> GetOnboardingAsync(Guid userId)
+    {
+        return await _repo.GetAsync(userId);
     }
 }

@@ -26,6 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<TeamTask> TeamTasks => Set<TeamTask>();
     public DbSet<TeamUpdate> TeamUpdates => Set<TeamUpdate>();
+    public DbSet<Certificate> Certificates => Set<Certificate>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

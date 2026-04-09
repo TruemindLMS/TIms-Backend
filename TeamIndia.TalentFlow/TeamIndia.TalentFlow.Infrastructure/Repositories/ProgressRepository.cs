@@ -25,6 +25,22 @@ namespace TeamIndia.TalentFlow.Infrastructure.Repositories
             return await _db.LessonCompletions.CountAsync(lc => lc.UserId == userId && lessonIds.Contains(lc.LessonId));
         }
 
+        public async Task<DateTime?> GetCourseCompletionDateAsync(Guid courseId, Guid userId)
+        {
+            var lessonIds = await _db.Lessons.Where(l => l.CourseId == courseId).Select(l => l.LessonId).ToListAsync();
+            var completions = await _db.LessonCompletions
+                .Where(lc => lc.UserId == userId && lessonIds.Contains(lc.LessonId))
+                .OrderBy(lc => lc.CompletedOnUtc)
+                .ToListAsync();
+
+            var total = lessonIds.Count;
+            if (total == 0) return null;
+
+            if (completions.Count < total) return null;
+
+            return completions.Max(c => c.CompletedOnUtc);
+        }
+
         public async Task<int> GetTotalAssignmentsAsync(Guid courseId)
         {
             return await _db.Assignments.CountAsync(a => a.CourseId == courseId);

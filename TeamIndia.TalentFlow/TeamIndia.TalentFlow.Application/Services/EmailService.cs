@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Options;
 using sib_api_v3_sdk.Api;
 using sib_api_v3_sdk.Model;
-using Task = System.Threading.Tasks.Task;
 using TeamIndia.TalentFlow.Application.ApplicationSettings;
 using TeamIndia.TalentFlow.Application.Interfaces;
+using Task = System.Threading.Tasks.Task;
 
 namespace TeamIndia.TalentFlow.Application.Services;
 
@@ -44,6 +44,45 @@ public class EmailService : IEmailService
         catch (Exception ex)
         {
             Console.WriteLine($"Error sending email: {ex.Message}");
+        }
+    }
+
+    public async Task SendEmailWithAttachmentAsync(string email, string subject, string htmlBody, string attachmentName, byte[] attachmentBytes)
+    {
+        try
+        {
+            var config = new sib_api_v3_sdk.Client.Configuration();
+            config.ApiKey.Add("api-key", _brevoSettings.ApiKey);
+
+            var apiInstance = new TransactionalEmailsApi(config);
+
+
+            var attachment = new SendSmtpEmailAttachment
+            {
+                Name = attachmentName,
+                Content = attachmentBytes
+            };
+
+            var sendSmtpEmail = new SendSmtpEmail
+            {
+                Subject = subject,
+                HtmlContent = htmlBody,
+                Sender = new SendSmtpEmailSender(
+                    _brevoSettings.SenderName,
+                    _brevoSettings.SenderEmail
+                ),
+                To = new List<SendSmtpEmailTo>
+                {
+                    new SendSmtpEmailTo(email)
+                },
+                Attachment = new List<SendSmtpEmailAttachment> { attachment }
+            };
+
+            await apiInstance.SendTransacEmailAsync(sendSmtpEmail);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error sending email with attachment: {ex.Message}");
         }
     }
 

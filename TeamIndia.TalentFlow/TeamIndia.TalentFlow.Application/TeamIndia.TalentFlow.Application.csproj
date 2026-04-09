@@ -18,6 +18,7 @@
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.32.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.5" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.0" />
+		<PackageReference Include="PuppeteerSharp" Version="9.1.0" />
 
 	</ItemGroup>
 
