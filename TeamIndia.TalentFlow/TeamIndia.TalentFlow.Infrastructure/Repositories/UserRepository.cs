@@ -80,4 +80,9 @@ public class UserRepository : IUserRepository
     {
         return await _userManager.FindByIdAsync(userId.ToString());
     }
+
+    public async Task<UserOnboarding?> GetOnboardingAsync(Guid userId)
+    {
+        return await _dbContext.UserOnboardings.FirstOrDefaultAsync(o => o.UserId == userId);
+    }
 }

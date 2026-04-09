@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using TeamIndia.TalentFlow.Application.Common;
 using TeamIndia.TalentFlow.Application.Interfaces;
+using TeamIndia.TalentFlow.Domain.Entities;
 
 namespace TeamIndia.TalentFlow.Application.Services;
 
@@ -7,11 +9,13 @@ public class AdminService : IAdminService
 {
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _role_repository;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public AdminService(IUserRepository userRepository, IRoleRepository roleRepository)
+    public AdminService(IUserRepository userRepository, IRoleRepository roleRepository, UserManager<ApplicationUser> userManager)
     {
         _userRepository = userRepository;
         _role_repository = roleRepository;
+        _userManager = userManager;
     }
 
     public async Task<BaseResponse> ApproveMentorAsync(string email)

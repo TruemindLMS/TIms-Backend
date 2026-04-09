@@ -17,6 +17,66 @@ namespace TeamIndia.TalentFlow.Application.Services
             _cloudinary = cloudinary;
         }
 
+        public async Task<BaseResponse<object>> GetAssignmentsForUserPagedAsync(Guid userId, int page, int pageSize, string? filter, string? status)
+        {
+            try
+            {
+                var (items, total) = await _repo.GetAssignmentsForUserPagedAsync(userId, page, pageSize, filter, status);
+                var now = DateTime.UtcNow;
+                var dtos = items.Select(a => new AssignmentResponseDto
+                {
+                    AssignmentId = a.AssignmentId,
+                    CourseId = a.CourseId,
+                    LessonId = a.LessonId,
+                    Title = a.Title,
+                    Description = a.Description,
+                    DueDateUtc = a.DueDateUtc,
+                    Status = a.Submissions.Any(s => s.UserId == userId) ? TeamIndia.TalentFlow.Application.Enums.AssignmentStatus.Submitted : (a.DueDateUtc < now ? TeamIndia.TalentFlow.Application.Enums.AssignmentStatus.Overdue : TeamIndia.TalentFlow.Application.Enums.AssignmentStatus.Pending)
+                }).ToList();
+
+                var res = new
+                {
+                    Items = dtos,
+                    Page = page,
+                    PageSize = pageSize,
+                    Total = total
+                };
+
+                return BaseResponse<object>.Ok(res, "OK", 200);
+            }
+            catch (Exception ex)
+            {
+                return BaseResponse<object>.Fail("An error occurred", new[] { ex.Message }, 500);
+            }
+        }
+
+        public async Task<BaseResponse<object>> GetAssignmentSummaryForUserAsync(Guid userId)
+        {
+            try
+            {
+                var total = await _repo.GetTotalAssignmentsForUserAsync(userId);
+                var submitted = await _repo.GetSubmittedAssignmentsCountAsync(userId);
+                var overdue = await _repo.GetOverdueAssignmentsCountAsync(userId);
+                var pending = await _repo.GetPendingAssignmentsCountAsync(userId);
+
+                var summary = new
+                {
+                    Total = total,
+                    Submitted = submitted,
+                    Pending = pending,
+                    Overdue = overdue
+                };
+
+                return BaseResponse<object>.Ok(summary, "OK", 200);
+            }
+            catch (Exception ex)
+            {
+                return BaseResponse<object>.Fail("An error occurred", new[] { ex.Message }, 500);
+            }
+        }
+
+        // deprecated: use GetAssignmentsForUserPagedAsync for paged results with filters
+
         public async Task<BaseResponse<AssignmentResponseDto>> CreateAssignmentAsync(CreateAssignmentRequestDto dto, Guid mentorId)
         {
             try

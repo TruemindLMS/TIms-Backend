@@ -15,6 +15,7 @@ public interface IUserRepository
     Task<IdentityResult> UpdateAsync(ApplicationUser user);
     Task<UserProfile?> GetProfileAsync(ApplicationUser user);
     Task<IdentityResult> CreateOrUpdateProfileAsync(UserProfile profile);
+    Task<UserOnboarding?> GetOnboardingAsync(Guid userId);
     Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user);
     Task<IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword);
     Task<ApplicationUser?> GetByIdAsync(Guid userId);

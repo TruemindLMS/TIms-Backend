@@ -20,6 +20,37 @@ public class AssignmentsController : ControllerBase
         _courseRepo = courseRepo;
     }
 
+    [HttpGet("summary")]
+    public async Task<IActionResult> Summary()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(userIdClaim)) return Unauthorized();
+        if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
+
+        var res = await _service.GetAssignmentSummaryForUserAsync(userId);
+        return StatusCode(res.StatusCode, res);
+    }
+
+    [HttpGet("user")]
+    public async Task<IActionResult> ForUser()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(userIdClaim)) return Unauthorized();
+        if (!Guid.TryParse(userIdClaim, out var userId)) return Unauthorized();
+
+        // support paging and filtering: ?page=1&pageSize=10&filter=keyword&status=pending|submitted|overdue
+        var qp = HttpContext.Request.Query;
+        var page = 1;
+        var pageSize = 20;
+        if (int.TryParse(qp["page"].FirstOrDefault(), out var p)) page = Math.Max(1, p);
+        if (int.TryParse(qp["pageSize"].FirstOrDefault(), out var ps)) pageSize = Math.Clamp(ps, 1, 200);
+        var filter = qp["filter"].FirstOrDefault();
+        var status = qp["status"].FirstOrDefault();
+
+        var res = await _service.GetAssignmentsForUserPagedAsync(userId, page, pageSize, filter, status);
+        return StatusCode(res.StatusCode, res);
+    }
+
     [HttpPost]
     [Authorize(Roles = "Mentor")]
     public async Task<IActionResult> CreateAssignment([FromBody] CreateAssignmentRequestDto dto)
