@@ -11,6 +11,7 @@ using TeamIndia.TalentFlow.Application.ApplicationSettings;
 using TeamIndia.TalentFlow.Application.Interfaces;
 using TeamIndia.TalentFlow.Domain.Entities;
 using TeamIndia.TalentFlow.Infrastructure.DbContext;
+using TeamIndia.TalentFlow.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +58,7 @@ builder.Services.Configure<FormOptions>(options => { options.MultipartBodyLength
 
 // Service registrations
 builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ICertificateService, CertificateService>();
 builder.Services.AddScoped<ITokenService, TeamIndia.TalentFlow.Application.Services.TokenService>();
 builder.Services.AddScoped<IOtpService, TeamIndia.TalentFlow.Application.Services.OtpService>();
 builder.Services.AddScoped<IAdminService, TeamIndia.TalentFlow.Application.Services.AdminService>();

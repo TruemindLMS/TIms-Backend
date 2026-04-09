@@ -18,4 +18,5 @@ public class ApplicationUser : IdentityUser<Guid>
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public virtual UserProfile? Profile { get; set; }
+    public Guid UserId { get; set; }
 }
