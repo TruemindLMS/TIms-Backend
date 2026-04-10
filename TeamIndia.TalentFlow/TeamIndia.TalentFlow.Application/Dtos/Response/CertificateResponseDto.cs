@@ -7,6 +7,5 @@ namespace TeamIndia.TalentFlow.Application.Dtos.Response
         public Guid UserId { get; set; }
         public DateTime IssuedOnUtc { get; set; }
         public string? FileUrl { get; set; }
-        public string HtmlContent { get; set; } = string.Empty;
     }
 }
