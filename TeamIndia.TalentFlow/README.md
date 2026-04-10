@@ -54,7 +54,7 @@ By default the project reads the database connection from the `DATABASE_URL` env
 dotnet run --project TeamIndia.TalentFlow.API
 ```
 
-Swagger UI is available at `https://localhost:{PORT}/swagger/index.html` when enabled.
+Swagger UI can be accessed at https://localhost:{PORT}/swagger/index.html when it is enabled. After logging in, obtain your JWT token and use the Authorize button in Swagger to paste and apply the token for authenticated requests.
 
 Certificate generation
 - The service generates PDF certificates using PuppeteerSharp. On first run PuppeteerSharp will download a compatible Chromium binary. Make sure the host environment allows the download and execution of headless Chromium.
