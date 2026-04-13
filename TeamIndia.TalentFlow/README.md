@@ -24,7 +24,7 @@ To clone this repository and switch to the feature branch used in the workspace 
 git clone https://github.com/TruemindLMS/TIms-Backend.git
 cd TIms-Backend
 git fetch --all
-git checkout Feature-stanDev
+git checkout to Main branch
 ```
 
 If you prefer SSH:
@@ -33,7 +33,7 @@ If you prefer SSH:
 git clone git@github.com:TruemindLMS/TIms-Backend.git
 cd TIms-Backend
 git fetch --all
-git checkout Feature-stanDev
+git checkout to Main branch
 ```
 
 2. (If you changed entities) Apply EF Core migrations
@@ -55,6 +55,10 @@ dotnet run --project TeamIndia.TalentFlow.API
 ```
 
 Swagger UI can be accessed at https://localhost:{PORT}/swagger/index.html when it is enabled. After logging in, obtain your JWT token and use the Authorize button in Swagger to paste and apply the token for authenticated requests.
+
+OR 
+
+Can be access online https://tims-backend-11dz.onrender.com/swagger/index.html
 
 Certificate generation
 - The service generates PDF certificates using PuppeteerSharp. On first run PuppeteerSharp will download a compatible Chromium binary. Make sure the host environment allows the download and execution of headless Chromium.
