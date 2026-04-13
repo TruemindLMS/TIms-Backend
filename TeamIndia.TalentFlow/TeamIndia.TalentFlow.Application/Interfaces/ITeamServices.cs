@@ -20,5 +20,6 @@ namespace TeamIndia.TalentFlow.Application.Interfaces
         Task<BaseResponse<TeamUpdateResponseDto>> CreateUpdateAsync(Guid teamId, Guid userId, CreateTeamUpdateRequestDto request);
         Task<BaseResponse<IEnumerable<TeamUpdateResponseDto>>> GetTeamUpdatesAsync(Guid teamId);
 
+        Task<BaseResponse<object>> GetTeamsForUserAsync(Guid userId, int page = 1, int pageSize = 10);
     }
 }

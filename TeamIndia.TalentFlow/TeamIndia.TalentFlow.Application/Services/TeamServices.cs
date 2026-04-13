@@ -19,6 +19,55 @@ namespace TeamIndia.TalentFlow.Application.Services
             _teamRepository = teamRepository;
             _userManager = userManager;
         }
+        public async Task<BaseResponse<object>> GetTeamsForUserAsync(Guid userId, int page = 1, int pageSize = 20)
+        {
+            try
+            {
+                var myTeams = await _teamRepository.GetTeamsByUserIdAsync(userId);
+                var myTeamDtos = new List<TeamDetailsResponseDto>();
+                foreach (var t in myTeams)
+                {
+                    var full = await _teamRepository.GetTeamWithDetailsByIdAsync(t.TeamId);
+                    if (full == null) continue;
+                    myTeamDtos.Add(new TeamDetailsResponseDto
+                    {
+                        TeamId = full.TeamId,
+                        Name = full.Name,
+                        Description = full.Description,
+                        CreatedAtUtc = full.CreatedAtUtc,
+                        UpdatedAtUtc = full.UpdatedAtUtc,
+                        Members = full.Members.Select(MapMemberToDto).ToList(),
+                        Tasks = full.Tasks.Select(MapTaskToDto).ToList(),
+                        Updates = full.Updates.OrderByDescending(x => x.CreatedAtUtc).Select(MapUpdateToDto).ToList()
+                    });
+                }
+
+                var otherTeams = await _teamRepository.GetTeamsUserNotMemberAsync(userId, page, pageSize);
+                var otherDtos = otherTeams.Select(t => new TeamResponseDto
+                {
+                    TeamId = t.TeamId,
+                    Name = t.Name,
+                    Description = t.Description,
+                    CreatedAtUtc = t.CreatedAtUtc,
+                    UpdatedAtUtc = t.UpdatedAtUtc
+                }).ToList();
+
+                var totalOther = await _teamRepository.GetTeamsNotMemberCountAsync(userId);
+                var pagination = new { Page = page, PageSize = pageSize, Total = totalOther };
+
+                var result = new
+                {
+                    MyTeams = myTeamDtos,
+                    AvailableTeams = otherDtos,
+                    AvailableTeamsPagination = pagination
+                };
+                return BaseResponse<object>.Ok(result, "OK", 200);
+            }
+            catch (Exception ex)
+            {
+                return BaseResponse<object>.Fail("An error occurred", new[] { ex.Message }, 500);
+            }
+        }
 
         public async Task<BaseResponse<IEnumerable<TeamMemberResponseDto>>> GetTeamMembersAsync(Guid teamId)
         {

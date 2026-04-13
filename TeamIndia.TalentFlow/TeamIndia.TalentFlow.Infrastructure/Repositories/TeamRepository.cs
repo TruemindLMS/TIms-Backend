@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TeamIndia.TalentFlow.Application.Interfaces;
 using TeamIndia.TalentFlow.Domain.Entities;
 using TeamIndia.TalentFlow.Infrastructure.DbContext;
-using TeamIndia.TalentFlow.Application.Interfaces;
 
 namespace TeamIndia.TalentFlow.Infrastructure.Repositories
 {
@@ -98,6 +98,64 @@ namespace TeamIndia.TalentFlow.Infrastructure.Repositories
         }
 
         Task<bool> ITeamRepository.IsUserAlreadyInTeamAsync(Guid teamId, Guid userId) => IsUserAlreadyInTeamAsync(teamId, userId);
+
+        public async Task<IEnumerable<Team>> GetTeamsByUserIdAsync(Guid userId)
+        {
+            return await _context.TeamMembers
+                .AsNoTracking()
+                .Where(tm => tm.UserId == userId)
+                .Select(tm => tm.Team)
+                .Distinct()
+                .ToListAsync();
+        }
+
+        Task<IEnumerable<Team>> ITeamRepository.GetTeamsByUserIdAsync(Guid userId) => GetTeamsByUserIdAsync(userId);
+
+        public async Task<IEnumerable<Team>> GetTeamsUserNotMemberAsync(Guid userId)
+        {
+            var memberTeamIds = await _context.TeamMembers
+                .Where(tm => tm.UserId == userId)
+                .Select(tm => tm.TeamId)
+                .ToListAsync();
+
+            return await _context.Teams
+                .AsNoTracking()
+                .Where(t => !memberTeamIds.Contains(t.TeamId))
+                .OrderBy(t => t.Name)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Team>> GetTeamsUserNotMemberAsync(Guid userId, int page, int pageSize)
+        {
+            var memberTeamIds = await _context.TeamMembers
+                .Where(tm => tm.UserId == userId)
+                .Select(tm => tm.TeamId)
+                .ToListAsync();
+
+            return await _context.Teams
+                .AsNoTracking()
+                .Where(t => !memberTeamIds.Contains(t.TeamId))
+                .OrderBy(t => t.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        Task<IEnumerable<Team>> ITeamRepository.GetTeamsUserNotMemberAsync(Guid userId, int page, int pageSize) => GetTeamsUserNotMemberAsync(userId, page, pageSize);
+
+        public async Task<int> GetTeamsNotMemberCountAsync(Guid userId)
+        {
+            var memberTeamIds = await _context.TeamMembers
+                .Where(tm => tm.UserId == userId)
+                .Select(tm => tm.TeamId)
+                .ToListAsync();
+
+            return await _context.Teams
+                .AsNoTracking()
+                .Where(t => !memberTeamIds.Contains(t.TeamId))
+                .CountAsync();
+        }
+
+        Task<int> ITeamRepository.GetTeamsNotMemberCountAsync(Guid userId) => GetTeamsNotMemberCountAsync(userId);
 
         public async Task<TeamTask> AddTaskAsync(TeamTask task)
         {

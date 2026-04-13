@@ -14,7 +14,9 @@ namespace TeamIndia.TalentFlow.Application.Interfaces
         Task<TeamMember> AddMemberAsync(TeamMember member);
         Task<IEnumerable<TeamMember>> GetMembersByTeamIdAsync(Guid teamId);
         Task<bool> IsUserAlreadyInTeamAsync(Guid teamId, Guid userId);
-
+        Task<IEnumerable<Team>> GetTeamsByUserIdAsync(Guid userId);
+        Task<IEnumerable<Team>> GetTeamsUserNotMemberAsync(Guid userId, int page, int pageSize);
+        Task<int> GetTeamsNotMemberCountAsync(Guid userId);
         Task<TeamTask> AddTaskAsync(TeamTask task);
         Task<TeamTask?> GetTaskByIdAsync(Guid teamTaskId);
         Task<IEnumerable<TeamTask>> GetTasksByTeamIdAsync(Guid teamId);
